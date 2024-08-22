@@ -6,6 +6,7 @@ use App\DTO\CartItem\CartItemRequestCreateDTO;
 use App\DTO\CartItem\CartItemRequestRemoveDTO;
 use App\DTO\CartItem\CartItemRequestUpdateQuantityDTO;
 use App\DTO\Order\OrderCreateDTO;
+use App\DTO\Order\OrderUpdateStatusDTO;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Enums\RoleEnum;
@@ -34,21 +35,19 @@ class OrderController extends AbstractController {
         return $this->json(['id' => $order->getId()], Response::HTTP_CREATED);
     }
 
-    #[Route('/updateQuantity', name: 'updateQuantity', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
-    public function updateQuantity(#[MapRequestPayload] CartItemRequestUpdateQuantityDTO $requestDTO): JsonResponse {
+        #[Route('/{orderId}/status/update', name: 'store', methods: ['POST'])]
+        #[IsGranted('ROLE_ADMIN')]
+        public function updateStatus(int $orderId, #[MapRequestPayload] OrderUpdateStatusDTO $orderUpdateStatusDTO): JsonResponse {
+            $user = $this->security->getUser();
+            $order = $this->orderService->updateStatus($orderId, $orderUpdateStatusDTO->statusSlug, $user);
+
+            return $this->json(['id' => $order->getId()], Response::HTTP_OK);
+        }
+
+    #[Route('/list', name: 'index', methods: ['GET'])]
+    public function index(): JsonResponse {
         $user = $this->security->getUser();
-        $cartItem = $this->cartItemService->updateQuantity($requestDTO, $user);
 
-        return $this->json(['id' => $cartItem->getId()], Response::HTTP_OK);
-    }
-
-    #[Route('/', name: 'remove', methods: ['DELETE'])]
-    #[IsGranted('ROLE_USER')]
-    public function remove(#[MapRequestPayload] CartItemRequestRemoveDTO $requestDTO): JsonResponse {
-        $user = $this->security->getUser();
-        $this->cartItemService->remove($requestDTO, $user);
-
-        return $this->json(null, Response::HTTP_NO_CONTENT);
+        return $this->json($this->orderService->getList($user));
     }
 }

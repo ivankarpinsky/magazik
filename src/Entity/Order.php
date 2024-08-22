@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\Pure;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -24,11 +25,16 @@ class Order
     #[ORM\Column(type: Types::BIGINT)]
     private ?string $amount = null;
 
-    #[ORM\OneToOne(targetEntity: "App\Entity\OrderDeliveryType")]
+
+    #[ORM\ManyToOne(targetEntity: "App\Entity\User")]
+    #[ORM\JoinColumn(nullable: false, name: "user_id")]
+    private ?User $user = null;
+
+    #[ORM\ManyToOne(targetEntity: "App\Entity\OrderDeliveryType")]
     #[ORM\JoinColumn(nullable: false, name: "delivery_type_id")]
     private ?OrderDeliveryType $deliveryType = null;
 
-    #[ORM\OneToOne(targetEntity: "App\Entity\OrderStatus")]
+    #[ORM\ManyToOne(targetEntity: "App\Entity\OrderStatus")]
     #[ORM\JoinColumn(nullable: false, name: "status_id")]
     private ?OrderStatus $status = null;
 
@@ -72,29 +78,60 @@ class Order
         return $this;
     }
 
-    public function getDeliveryTypeId(): ?int
-    {
-        return $this->delivery_type_id;
+    public function getDeliveryType(): OrderDeliveryType {
+        return $this->deliveryType;
     }
 
-    public function setDeliveryTypeId(int $delivery_type_id): static
+
+    public function setDeliveryType(OrderDeliveryType $deliveryType): static
     {
-        $this->delivery_type_id = $delivery_type_id;
+        $this->deliveryType = $deliveryType;
 
         return $this;
     }
 
-    public function getStatusId(): ?int
+    public function setDeliveryTypeId(int $deliveryTypeId): static
     {
-        return $this->status_id;
-    }
-
-    public function setStatusId(int $status_id): static
-    {
-        $this->status_id = $status_id;
+        $this->deliveryTypeId = $deliveryTypeId;
+        // Вам нужно будет загружать объект OrderDeliveryType из БД и устанавливать его здесь
+        // $this->deliveryType = ...;
 
         return $this;
     }
+
+
+
+    public function getUser(): User {
+        return $this->user;
+    }
+
+    public function setUser(User $user): static {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getStatus(): OrderStatus {
+        return $this->status;
+    }
+
+    public function setStatus(OrderStatus $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+
+    public function setStatusId(int $statusId): static
+    {
+        $this->statusId = $statusId;
+        // Вам нужно будет загружать объект OrderStatus из БД и устанавливать его здесь
+        // $this->status = ...;
+
+        return $this;
+    }
+
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -104,6 +141,13 @@ class Order
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function setCreatedAtNow(): static
+    {
+        $this->created_at = new \DateTimeImmutable();
 
         return $this;
     }

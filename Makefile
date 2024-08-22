@@ -23,6 +23,14 @@ dc_logs:
 dc_down:
 	docker-compose -f ./docker/docker-compose.yml down -v --rmi=all --remove-orphans
 
+app_db_setup:
+	docker-compose exec php-fpm php bin/console doctrine:migration:diff && \
+    docker-compose exec php-fpm php bin/console doctrine:migration:migrate && \
+    docker-compose exec php-fpm php bin/console doctrine:fixtures:load --no-interaction && \
+    docker-compose exec php-fpm php bin/console doctrine:database:create --env=test && \
+    docker-compose exec php-fpm php bin/console doctrine:migrations:migrate --env=test && \
+    docker-compose exec php-fpm php bin/console doctrine:fixtures:load --env=test --no-interaction
+
 
 ##################
 # App

@@ -1,5 +1,6 @@
 doctrine:
     dbal:
+        logging: true
         driver: 'pdo_pgsql'
         url: '%env(resolve:DATABASE_URL)%'
         charset: utf8
@@ -25,6 +26,19 @@ doctrine:
                 alias: App
         controller_resolver:
             auto_mapping: true
+
+monolog:
+    handlers:
+        main:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            channels: ["!event"]
+        doctrine:
+            type: stream
+            path: "%kernel.logs_dir%/doctrine.sql.log"
+            level: debug
+            channels: ["doctrine"]
 
 when@test:
     doctrine:

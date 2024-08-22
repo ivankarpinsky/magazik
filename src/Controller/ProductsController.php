@@ -17,7 +17,7 @@ class ProductsController extends AbstractController
 {
     public function __construct(private ProductService $productService, private EntityManagerInterface $entityManager) {}
 
-    #[Route('/products/', name: 'index', methods: ['GET'])]
+    #[Route('/product/list', name: 'index', methods: ['GET'])]
     public function index(): JsonResponse
     {
         $productRepository = $this->entityManager->getRepository(Product::class);
@@ -26,7 +26,7 @@ class ProductsController extends AbstractController
         return $this->json($products);
     }
 
-    #[Route('/products/', name: 'store', methods: ['POST'])]
+    #[Route('/product/', name: 'store', methods: ['POST'])]
     public function store(
         #[MapRequestPayload] ProductCreateDTO $productCreateDTO
     ): JsonResponse
